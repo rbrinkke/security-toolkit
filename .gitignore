@@ -1,0 +1,15 @@
+# Logs and runtime data
+logs/
+*.log
+/var/log/
+
+# Temporary files
+*.tmp
+.cache/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Runtime configs (may contain sensitive data)
+configs/local-*

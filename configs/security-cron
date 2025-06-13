@@ -1,0 +1,6 @@
+# AI Security Toolkit - Daily Security Scan
+# Runs every day at 3:00 AM
+0 3 * * * /opt/ai-security-toolkit/scripts/security-check.sh > /dev/null 2>&1
+
+# Weekly deep scan with Claude analysis
+0 6 * * 0 /opt/ai-security-toolkit/scripts/weekly-analysis.sh > /dev/null 2>&1
