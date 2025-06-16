@@ -1,4 +1,4 @@
-# 🛡️ AI Security Toolkit
+# 🛡️  Security Toolkit
 
 **Automated Security Monitoring with AI Analysis**
 
