@@ -31,7 +31,7 @@
    - Automated security monitoring for Ubuntu servers
    - AI-powered log analysis with Claude integration  
    - One-command installation with error handling
-   - Professional-grade security automation
+   - Simple, reliable security automation
    
    Features:
    - UFW firewall monitoring
@@ -50,7 +50,7 @@
 ### v1.0 - Initial Release
 - ✅ Core security monitoring
 - ✅ AI analysis integration
-- ✅ Professional installation
+- ✅ Straightforward installation
 - ✅ Complete documentation
 
 ### Future Versions
@@ -69,7 +69,7 @@
 ```
 
 **Key selling points:**
-- "Professional-grade security automation"
+- "Simple, reliable security automation"
 - "AI-powered threat analysis"  
 - "Zero-configuration deployment"
 - "Enterprise security for everyone"

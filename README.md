@@ -2,7 +2,7 @@
 
 **Intelligent Server Security with AI-Powered Analysis**
 
-Automated security monitoring and analysis for Ubuntu servers using Claude AI. Professional-grade security automation made simple.
+Automated security monitoring and analysis for Ubuntu servers using Claude AI. Simple, reliable security automation.
 
 ## ✨ Features
 
@@ -186,7 +186,7 @@ MIT License - Free for all, because security should be accessible to everyone.
 
 Built with the principle that security should be **simple, intelligent, and accessible**.
 
-This toolkit embodies professional security values:
+This toolkit focuses on practical security values:
 - **Automated** - Security that doesn't interrupt workflows
 - **Intelligent** - AI-powered analysis with human oversight  
 - **Open** - Built for the community, by the community
@@ -196,4 +196,4 @@ This toolkit embodies professional security values:
 
 **Open Source Security Intelligence**
 
-*Professional-grade server protection for everyone* 🛡️
+*Reliable server protection for everyone* 🛡️

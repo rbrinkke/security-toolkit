@@ -125,4 +125,4 @@ echo
 echo "📊 Logs location: /var/log/security-check.log"
 echo "⚙️  Config location: $TOOLKIT_DIR"
 echo
-echo "🛡️ Professional security automation for modern servers"
+echo "🛡️ Simple security automation for modern servers"
