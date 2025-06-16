@@ -1,12 +1,12 @@
-# 🛡️ AI Security Toolkit
+# 🛡️ Security Toolkit
 
-**Intelligent Server Security with AI-Powered Analysis**
+**Intelligent Server Security with Automated Analysis**
 
 Automated security monitoring and analysis for Ubuntu servers using Claude AI. Simple, reliable security automation.
 
 ## ✨ Features
 
-- 🤖 **AI-Powered Analysis** - Claude analyzes security logs with expert insight
+- 🤖 **Automated Analysis** - Claude analyzes security logs with intelligent insight
 - ⏰ **Automated Scanning** - Daily security checks via cron
 - 🔍 **Comprehensive Monitoring** - UFW, Fail2ban, SSH, Docker, Rootkits
 - 🚀 **Instant Setup** - One-command installation
@@ -17,8 +17,8 @@ Automated security monitoring and analysis for Ubuntu servers using Claude AI. S
 
 ```bash
 # Clone and install
-git clone https://github.com/YOUR_USERNAME/ai-security-toolkit.git
-cd ai-security-toolkit
+git clone https://github.com/rbrinkke/claude-security-toolkit.git
+cd claude-security-toolkit
 sudo ./install.sh
 ```
 
@@ -82,13 +82,14 @@ NEXT SCAN: +24h
 ## 📁 Directory Structure
 
 ```
-ai-security-toolkit/
+security-toolkit/
 ├── scripts/
 │   ├── security-check.sh           # Main security scanner
 │   ├── interactive-security-check.sh # Interactive menu
 │   └── login-security-check.sh     # Claude analysis wrapper
 ├── templates/
-│   └── claude-security-analysis.md # AI analysis prompt
+│   ├── claude-security-analysis.md # AI analysis prompt
+│   └── security-template.json     # Security baseline configuration
 ├── configs/
 │   └── security-cron              # Cron job definitions
 ├── docs/
@@ -108,7 +109,7 @@ sudo crontab -e
 ### Custom Analysis Template
 Modify the Claude prompt:
 ```bash
-sudo nano /opt/ai-security-toolkit/templates/claude-security-analysis.md
+sudo nano /opt/security-toolkit/templates/security-template.json
 ```
 
 ### Login Hook Toggle
@@ -151,7 +152,7 @@ claude --version
 echo "Hello" | claude
 
 # Verify template exists
-ls -la /opt/ai-security-toolkit/templates/
+ls -la /opt/security-toolkit/templates/
 ```
 
 ### Missing Security Tools

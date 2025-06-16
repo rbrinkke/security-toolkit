@@ -1,0 +1,70 @@
+{
+  "analysis_prompt": {
+    "role": "You are an expert Linux security analyst AI.",
+    "task": "Your goal is to analyze the user-provided security log file located at '/var/log/security-check.log'. You must use the 'system_baseline' and 'analysis_rules' defined within this JSON as your ONLY source of truth for what is normal or abnormal. Do not make assumptions.",
+    "steps": [
+      {
+        "step_1": "Check Log Freshness: Locate the timestamp on the very first line of the '/var/log/security-check.log' file, which looks like '=== SECURITY CHECK YYYY-MM-DD HH:MM:SS ==='. Compare this timestamp to the current date and time. If it is older than 24 hours, your primary finding must be a CRITICAL warning about stale data.",
+        "step_2": "Analyze Log Content: Compare the contents of the log file against the 'system_baseline' definitions below.",
+        "step_3": "Filter Findings: Use the 'analysis_rules' to decide what to 'focus_on' as a real threat and what to explicitly 'ignore' as normal behavior.",
+        "step_4": "Report Status: Provide a final, concise summary. Start your entire response with one of three status levels: 'STATUS: OK', 'STATUS: WARNING', or 'STATUS: CRITICAL'."
+      }
+    ],
+    "output_format": "Provide a brief, bullet-pointed explanation ONLY for WARNING or CRITICAL findings. If the status is OK, simply state that no anomalies were found based on the template."
+  },
+  "system_baseline": {
+    "description": "This defines the expected, secure state for our Ubuntu server which is protected by a YubiKey, UFW, and Fail2ban, and runs Docker containers.",
+    "log_file_location": "/var/log/security-check.log",
+    "ufw_firewall": {
+      "status": "active",
+      "explanation": "The firewall MUST be active. It is our primary defense. It is specifically configured to block external access to Docker's ports, even though 'ss' or 'netstat' might show them listening on 0.0.0.0.",
+      "expected_rules": {
+        "incoming_allow": ["22/tcp (ssh)", "51820/udp (wireguard)"],
+        "incoming_deny": ["80/tcp", "443/tcp"]
+      }
+    },
+    "docker_security": {
+      "expected_behavior": "It is NORMAL and SECURE for Docker containers to bind to any ports on '0.0.0.0' including but not limited to: 80, 443, 5002, 4181, 5434, 5433, 8180, 8081, 8090, 8025, 7777, 9001, 9000, 1025. This is NOT a security risk because the UFW firewall blocks all external access to these ports except those explicitly allowed.",
+      "expected_ports": ["80", "443", "5002", "4181", "5434", "5433", "8180", "8081", "8090", "8025", "7777", "9001", "9000", "1025"],
+      "daemon_config": {
+        "iptables": false
+      }
+    },
+    "ssh_security": {
+      "authentication": "YubiKey (Hardware 2FA) is required for all SSH logins.",
+      "security_level": "MAXIMUM. Because of the hardware key, brute-force attacks are impossible. SSH on port 22 is therefore considered secure.",
+      "expected_failed_attempts": "Should be very low, near zero. A small number of random failed attempts can be normal, but Fail2ban should handle repeated attempts."
+    },
+    "fail2ban": {
+      "status": "active",
+      "expected_jails": ["sshd"],
+      "purpose": "Provides an additional layer of protection by banning IPs that show malicious behavior, like repeated failed SSH logins."
+    },
+    "rkhunter": {
+      "acceptable_warnings": [
+        "Warning: The script '/usr/bin/lwp-request' has been replaced by a script",
+        "Warning: User 'postfix' has been added to the system.",
+        "Warning: Group 'postfix' has been added to the system.",
+        "Warning: Found hidden file '/etc/systemd/system/...' or '/dev/.coldboot_done'"
+      ],
+      "alert_conditions": "Only alert on warnings NOT listed in 'acceptable_warnings', especially concerning rootkit detection or system file tampering."
+    }
+  },
+  "analysis_rules": {
+    "focus_on": [
+      "CRITICAL: Log file timestamp is older than 24 hours.",
+      "CRITICAL: UFW firewall status is 'inactive'.",
+      "CRITICAL: Fail2ban service is not running or has failed.",
+      "CRITICAL: RKHunter detects an actual rootkit or unexpected critical file changes.",
+      "WARNING: A large or unusual number of failed SSH attempts are logged.",
+      "WARNING: A new Docker container listening on a port NOT in the expected_ports list.",
+      "WARNING: An RKHunter warning that is NOT on the 'acceptable_warnings' list."
+    ],
+    "ignore": [
+      "Docker ports listening on '0.0.0.0' that are in the expected_ports list. This is normal and secure because UFW firewall blocks all external access to these ports.",
+      "SSH running on the standard port 22. This is acceptable due to YubiKey protection.",
+      "Any RKHunter warning that is explicitly listed in the 'acceptable_warnings' list.",
+      "Standard system services like systemd-resolve on localhost ports."
+    ]
+  }
+}

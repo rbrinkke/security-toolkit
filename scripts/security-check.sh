@@ -1,5 +1,5 @@
 #!/bin/bash
-# AI Security Toolkit - Main Security Scanner
+# Security Toolkit - Main Security Scanner
 # Comprehensive security check with AI-ready output
 
 LOG="/var/log/security-check.log"

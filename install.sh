@@ -1,10 +1,10 @@
 #!/bin/bash
-# AI Security Toolkit - Intelligent Server Security
+# Security Toolkit - Simple Server Protection
 # Installation script for Ubuntu servers
 
 set -e
 
-echo "🛡️ AI Security Toolkit Installation"
+echo "🛡️ Security Toolkit Installation"
 echo "====================================="
 echo
 
@@ -49,7 +49,7 @@ echo
 # Create directories
 echo "📁 Setting up toolkit structure..."
 
-TOOLKIT_DIR="/opt/ai-security-toolkit"
+TOOLKIT_DIR="/opt/security-toolkit"
 mkdir -p "$TOOLKIT_DIR"/{scripts,templates,configs,logs}
 
 # Check current directory has our files
@@ -95,12 +95,12 @@ read -p "🔗 Add security check to SSH login? (y/N): " -n 1 -r
 echo
 if [[ $REPLY =~ ^[Yy]$ ]]; then
     LOGIN_HOOK='
-# AI Security Toolkit - Show security status on login
+# Security Toolkit - Show security status on login
 if [[ -n "$SSH_CONNECTION" ]] && [[ "$USER" == "root" ]]; then
-    /opt/ai-security-toolkit/scripts/login-security-check.sh
+    /opt/security-toolkit/scripts/login-security-check.sh
 fi'
     
-    if ! grep -q "AI Security Toolkit" ~/.bashrc; then
+    if ! grep -q "Security Toolkit" ~/.bashrc; then
         echo "$LOGIN_HOOK" >> ~/.bashrc
         echo "✅ Login hook added to ~/.bashrc"
     else
@@ -115,7 +115,7 @@ echo "🚀 Running initial security scan..."
 "$TOOLKIT_DIR/scripts/security-check.sh"
 
 echo
-echo "🎉 AI Security Toolkit installed successfully!"
+echo "🎉 Security Toolkit installed successfully!"
 echo
 echo "📚 Available commands:"
 echo "   security-check          - Run full security scan"

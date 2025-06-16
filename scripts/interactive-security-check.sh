@@ -10,7 +10,7 @@ if [ ! -f "$TIMESTAMP_FILE" ] || [ $(($(date +%s) - $(stat -c %Y "$TIMESTAMP_FIL
     echo "Starting daily Claude security analysis..."
     
     # Voer Claude uit
-    claude "Compare /var/log/security-check.log against /etc/security-template.json and provide security assessment."
+    claude "Compare /var/log/security-check.log against /opt/security-toolkit/templates/security-template.json and provide security assessment."
     
     # Update timestamp
     touch "$TIMESTAMP_FILE"

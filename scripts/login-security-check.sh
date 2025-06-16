@@ -1,9 +1,9 @@
 #!/bin/bash
-# AI Security Toolkit - Login Security Analysis
+# Security Toolkit - Login Security Analysis
 # Runs Claude analysis on latest security log
 
 LOG_FILE="/var/log/security-check.log"
-TOOLKIT_DIR="/opt/ai-security-toolkit"
+TOOLKIT_DIR="/opt/security-toolkit"
 TEMPLATE="$TOOLKIT_DIR/templates/claude-security-analysis.md"
 CLAUDE_CMD="claude"
 
