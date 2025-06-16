@@ -148,13 +148,6 @@ security-interactive    # Interactive security menu
 security-login          # Get Claude AI analysis
 ```
 
-### Automated Operation
-
-- Daily scans at 3:00 AM (configurable)
-- Login analysis when connecting via SSH
-- Logs stored in `/var/log/security-check.log`
-
-
 
 ## 📁 Directory Structure
 
@@ -209,14 +202,6 @@ grep "Failed password" /var/log/security-check.log | wc -l
 
 # Custom integrations (modify security-check.sh)
 # Add your webhook/API calls to the script
-```
-
-### Custom Security Rules
-
-```bash
-# Example: Check custom service
-echo "Checking MyApp status..." >> $LOG
-systemctl is-active myapp >> $LOG 2>&1
 ```
 
 ## 🛠️ Troubleshooting
