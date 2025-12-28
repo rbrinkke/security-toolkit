@@ -13,58 +13,137 @@
     "output_format": "Provide a brief, bullet-pointed explanation ONLY for WARNING or CRITICAL findings. If the status is OK, simply state that no anomalies were found based on the template."
   },
   "system_baseline": {
-    "description": "This defines the expected, secure state for our Ubuntu server which is protected by a YubiKey, UFW, and Fail2ban, and runs Docker containers.",
+    "description": "This defines the expected state for rob-Latitude-5430, an Ubuntu 24.04.3 LTS (Noble Numbat) development workstation running Docker containers for local development (k3d cluster, databases, Prometheus monitoring stack, etc.).",
+    "system_type": "development_workstation",
+    "hostname": "rob-Latitude-5430",
+    "os_version": "Ubuntu 24.04.3 LTS (Noble Numbat)",
     "log_file_location": "/var/log/security-check.log",
     "ufw_firewall": {
-      "status": "active",
-      "explanation": "The firewall MUST be active. It is our primary defense. It is specifically configured to block external access to Docker's ports, even though 'ss' or 'netstat' might show them listening on 0.0.0.0.",
-      "expected_rules": {
-        "incoming_allow": ["22/tcp (ssh)", "51820/udp (wireguard)"],
-        "incoming_deny": ["80/tcp", "443/tcp"]
-      }
+      "status": "inactive",
+      "explanation": "UFW is intentionally INACTIVE on this development workstation. This is acceptable because it's a laptop behind a home/office router NAT, not a publicly exposed server.",
+      "acceptable_states": ["inactive", "active"]
     },
     "docker_security": {
-      "expected_behavior": "It is NORMAL and SECURE for Docker containers to bind to any ports on '0.0.0.0' including but not limited to: 80, 443, 5002, 4181, 5434, 5433, 8180, 8081, 8090, 8025, 7777, 9001, 9000, 1025. This is NOT a security risk because the UFW firewall blocks all external access to these ports except those explicitly allowed.",
-      "expected_ports": ["80", "443", "5002", "4181", "5434", "5433", "8180", "8081", "8090", "8025", "7777", "9001", "9000", "1025"],
-      "daemon_config": {
-        "iptables": false
-      }
+      "expected_behavior": "This is a development machine running a k3d Kubernetes cluster with Prometheus monitoring stack and various database containers for local development. All Docker ports on 0.0.0.0 are NORMAL and EXPECTED.",
+      "known_containers": {
+        "k3d-activity-local-serverlb": "K3d load balancer - ports 6443, 8080, 8443",
+        "k3d-activity-local-server-0": "K3d server node running Kubernetes v1.31.5+k3s1",
+        "activity-redis": "Redis cache - port 6379 (requires authentication)",
+        "activity-postgres-db": "PostgreSQL database - port 5441",
+        "activity-postgres-backup": "PostgreSQL backup container (internal port 5432)",
+        "activity-mailhog": "MailHog email testing - ports 1025, 8025",
+        "chat-api-mongodb": "MongoDB for chat API - port 27019"
+      },
+      "kubernetes_services": {
+        "prometheus-kube-prometheus-operator": "Prometheus Operator for monitoring",
+        "node-exporter": "Node metrics exporter - port 9100",
+        "grafana": "Grafana dashboards - accessible via k3d ingress"
+      },
+      "expected_ports": ["22", "25", "53", "631", "1025", "5037", "5441", "6379", "6443", "8025", "8080", "8443", "9100", "27019"],
+      "port_explanations": {
+        "22": "SSH server",
+        "25": "SMTP (Postfix/local mail)",
+        "53": "DNS resolver (systemd-resolved)",
+        "631": "CUPS printing service",
+        "1025": "MailHog SMTP",
+        "5037": "ADB (Android Debug Bridge)",
+        "5441": "PostgreSQL database",
+        "6379": "Redis cache",
+        "6443": "Kubernetes API server (k3d)",
+        "8025": "MailHog web UI",
+        "8080": "K3d HTTP ingress",
+        "8443": "K3d HTTPS ingress",
+        "9100": "Prometheus node_exporter",
+        "27019": "MongoDB"
+      },
+      "daemon_config": "Default Docker configuration is acceptable"
+    },
+    "kubernetes_cluster": {
+      "name": "k3d-activity-local",
+      "expected_nodes": 1,
+      "expected_node_status": "Ready",
+      "version": "v1.31.5+k3s1",
+      "monitoring_stack": ["prometheus", "grafana", "node-exporter"]
     },
     "ssh_security": {
-      "authentication": "YubiKey (Hardware 2FA) is required for all SSH logins.",
-      "security_level": "MAXIMUM. Because of the hardware key, brute-force attacks are impossible. SSH on port 22 is therefore considered secure.",
-      "expected_failed_attempts": "Should be very low, near zero. A small number of random failed attempts can be normal, but Fail2ban should handle repeated attempts."
+      "status": "SSH on port 22 is normal for development workstation",
+      "expected_failed_attempts": "Low to zero. This is a laptop, not a public server."
     },
     "fail2ban": {
-      "status": "active",
-      "expected_jails": ["sshd"],
-      "purpose": "Provides an additional layer of protection by banning IPs that show malicious behavior, like repeated failed SSH logins."
+      "status": "optional",
+      "explanation": "Fail2ban is OPTIONAL on this development workstation. Not having it installed is acceptable."
     },
     "rkhunter": {
+      "status": "optional",
+      "explanation": "RKHunter is OPTIONAL on this development workstation. Not having it installed is acceptable.",
       "acceptable_warnings": [
-        "Warning: The script '/usr/bin/lwp-request' has been replaced by a script",
-        "Warning: User 'postfix' has been added to the system.",
-        "Warning: Group 'postfix' has been added to the system.",
-        "Warning: Found hidden file '/etc/systemd/system/...' or '/dev/.coldboot_done'"
+        "RKHunter not installed - skipping rootkit scan",
+        "The command '/usr/bin/lwp-request' has been replaced by a script - This is a Perl HTTP client library, normal on Ubuntu",
+        "The following suspicious (large) shared memory segments have been found - mutter-x11-frames uses 16MB for GNOME desktop, this is normal",
+        "The SSH configuration option 'PermitRootLogin' has not been set - Acceptable for development workstation behind NAT",
+        "Hidden directory found: /etc/.java - Normal Java configuration directory",
+        "Hidden file found: /etc/.resolv.conf.systemd-resolved.bak - Normal systemd-resolved backup file",
+        "Hidden file found: /etc/.updated - Normal system update timestamp file",
+        "RKHunter scan completed with warnings - Above warnings are expected on this system"
       ],
-      "alert_conditions": "Only alert on warnings NOT listed in 'acceptable_warnings', especially concerning rootkit detection or system file tampering."
+      "known_false_positives": {
+        "lwp-request": "Perl LWP library HTTP client - part of libwww-perl package",
+        "mutter_shared_memory": "GNOME desktop compositor uses large shared memory segments (16MB+)",
+        "hidden_etc_files": "systemd-resolved and Java create hidden config/backup files in /etc/",
+        "permit_root_login": "SSH default config - not a risk on NAT-protected development workstation"
+      }
+    },
+    "localhost_services": {
+      "explanation": "Various localhost services are normal for development",
+      "expected_localhost_ports": {
+        "631": "CUPS printing service",
+        "53": "DNS resolver (systemd-resolve, dnsmasq)",
+        "5037": "ADB (Android Debug Bridge)",
+        "5554-5555": "Android emulator",
+        "6402": "Android network simulator (netsimd)",
+        "34897": "ADB server",
+        "35447": "Dart/Flutter development",
+        "42097": "QEMU/Android emulator",
+        "43349": "Dart development server"
+      }
     }
   },
   "analysis_rules": {
     "focus_on": [
       "CRITICAL: Log file timestamp is older than 24 hours.",
-      "CRITICAL: UFW firewall status is 'inactive'.",
-      "CRITICAL: Fail2ban service is not running or has failed.",
-      "CRITICAL: RKHunter detects an actual rootkit or unexpected critical file changes.",
-      "WARNING: A large or unusual number of failed SSH attempts are logged.",
+      "CRITICAL: Unexpected processes running as root that are not Docker or system services.",
+      "CRITICAL: Unknown network connections to external IPs that are not development-related.",
+      "CRITICAL: Kubernetes node is NotReady or missing.",
+      "CRITICAL: Database (Redis/MongoDB/PostgreSQL) connectivity failure.",
+      "WARNING: A large number of failed SSH attempts (more than 10 in the log).",
       "WARNING: A new Docker container listening on a port NOT in the expected_ports list.",
-      "WARNING: An RKHunter warning that is NOT on the 'acceptable_warnings' list."
+      "WARNING: Suspicious processes or unknown services.",
+      "WARNING: RKHunter detects actual rootkit signatures (if installed).",
+      "WARNING: Docker container is unhealthy or restarting repeatedly.",
+      "WARNING: Prometheus or Grafana monitoring endpoints unreachable."
     ],
     "ignore": [
-      "Docker ports listening on '0.0.0.0' that are in the expected_ports list. This is normal and secure because UFW firewall blocks all external access to these ports.",
-      "SSH running on the standard port 22. This is acceptable due to YubiKey protection.",
-      "Any RKHunter warning that is explicitly listed in the 'acceptable_warnings' list.",
-      "Standard system services like systemd-resolve on localhost ports."
+      "UFW firewall being 'inactive' - this is intentional for development workstation.",
+      "Fail2ban not installed or not running - optional for workstation.",
+      "RKHunter not installed - optional for workstation.",
+      "All Docker ports on 0.0.0.0 that are in the expected_ports list.",
+      "SSH running on port 22 - normal for development.",
+      "All localhost services (127.0.0.1, 127.0.0.53, 127.0.0.54) - these are local development tools.",
+      "Android development tools (ADB, emulator, netsimd, QEMU).",
+      "Dart/Flutter development servers.",
+      "CUPS printing service on localhost.",
+      "dnsmasq on 192.168.122.1 - libvirt/KVM virtual network.",
+      "Docker proxy processes - these are normal Docker networking.",
+      "RKHunter warning about lwp-request being a Perl script - this is normal.",
+      "RKHunter warning about mutter-x11-frames shared memory (16MB) - GNOME desktop normal behavior.",
+      "RKHunter warning about PermitRootLogin not set - acceptable for NAT-protected workstation.",
+      "RKHunter warning about hidden files in /etc (.java, .resolv.conf.systemd-resolved.bak, .updated) - normal system files.",
+      "Port 25 (SMTP) on localhost - local mail delivery.",
+      "Port 9100 (node_exporter) - Prometheus metrics collection.",
+      "Prometheus operator and related pods in kube-system namespace.",
+      "Grafana process running as user 472 - normal Grafana container user.",
+      "gcr-ssh-agent process - GNOME Keyring SSH agent.",
+      "Redis requiring authentication (NOAUTH response) - this is good security practice."
     ]
   }
 }

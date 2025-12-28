@@ -4,7 +4,7 @@
 
 LOG_FILE="/var/log/security-check.log"
 TOOLKIT_DIR="/opt/security-toolkit"
-TEMPLATE="$TOOLKIT_DIR/templates/claude-security-analysis.md"
+TEMPLATE="$TOOLKIT_DIR/templates/security-template.json"
 CLAUDE_CMD="claude"
 
 # Check if log exists and is recent (less than 25 hours old)
